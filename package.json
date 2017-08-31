@@ -33,5 +33,8 @@
   "bugs": {
     "url": "https://github.com/Talor-A/react-native-message-bar/issues"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "react-native-vector-icons": "^2.0.3"
+  }
 }

@@ -12,8 +12,11 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
-  Image
-} from 'react-native'
+  Image,
+  Platform,
+} from 'react-native';
+
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 let windowWidth = Dimensions.get('window').width
 let windowHeight = Dimensions.get('window').height
@@ -39,6 +42,15 @@ class MessageBar extends Component {
     // alert and calls _changeOffsetByPosition()
     this._changeOffsetByPosition(this.state.position)
   }
+
+  componentDidMount() {
+    // Apply the colors of the alert depending on its alertType
+    this._applyAlertStylesheet(this.state.alertType);
+
+    // Override the opposition style position regarding the state position in order to have the alert sticks that position
+    this._changeOffsetByPosition(this.state.position);
+  }
+
 
   componentWillReceiveProps (nextProps) {
     if (nextProps && Object.keys(nextProps).length > 0) {
@@ -67,9 +79,18 @@ class MessageBar extends Component {
       /* Cusomisation of the alert: Title, Message, Icon URL, Alert alertType (error, success, warning, info), Duration for Alert keep shown */
       title: props.title,
       message: props.message,
+      imgMessage: props.imgMessage,
       avatar: props.avatar,
       alertType: props.alertType || 'info',
       duration: props.duration || 3000,
+      showCloseButton: props.showCloseButton,
+      closeButtonColor: props.closeButtonColor || "black",
+      closeButtonMarginTop: props.closeButtonMarginTop || 20,
+      closeButtonMarginBottom: props.closeButtonMarginBottom || 15,
+      closeButtonMarginLeft: props.closeButtonMarginLeft || 13,
+      closeButtonMarginRight: props.closeButtonMarginRight || 13,
+      closeButtonIconSize: props.closeButtonIconSize || 25,
+      bodyMargin: props.bodyMargin || 10,
 
       /* Hide setters */
       shouldHideAfterDelay: props.shouldHideAfterDelay == undefined
@@ -116,6 +137,7 @@ class MessageBar extends Component {
       viewLeftOffset: props.viewLeftOffset || 0,
       viewRightOffset: props.viewRightOffset || 0,
 
+
       /* Inset of the view, useful if you want to apply a padding at your alert content */
       viewTopInset: props.viewTopInset || 0,
       viewBottomInset: props.viewBottomInset || 0,
@@ -124,6 +146,7 @@ class MessageBar extends Component {
 
       /* Padding around the content, useful if you want a tiny message bar */
       messageBarPadding: props.messageBarPadding || 10,
+
 
       /* Number of Lines for Title and Message */
       titleNumberOfLines: props.titleNumberOfLines == undefined
@@ -157,11 +180,8 @@ class MessageBar extends Component {
   */
   showMessageBarAlert () {
     // If an alert is already shonw or doesn't have a title or a message, do nothing
-    if (
-      this.alertShown ||
-      (this.state.title == null && this.state.message == null)
-    ) {
-      return
+    if (this.alertShown || (this.state.title == null && ( this.state.message == null || this.state.imgMessage == null))) {
+      return;
     }
 
     // Set the data of the alert in the state
@@ -248,6 +268,11 @@ class MessageBar extends Component {
       this.state.onTapped()
     }
   }
+
+  _alertCloseTapped() {
+    this.hideMessageBarAlert();
+  }
+
 
   /*
   * Callback executed when alert is shown
@@ -434,8 +459,10 @@ class MessageBar extends Component {
               {this.renderTitle()}
               {this.renderMessage()}
             </View>
+          </TouchableOpacity>
+          <View style={{ position: 'absolute', top: 0, right: 0, alignSelf: 'flex-start' }}>
+                { this.renderCloseButton() }
           </View>
-        </TouchableOpacity>
       </Animated.View>
     )
   }
@@ -474,17 +501,36 @@ class MessageBar extends Component {
     }
   }
 
-  renderMessage () {
-    if (this.state.message != null) {
+  renderMessage() {
+    if ( this.state.message != null && this.state.imgMessage != null )
       return (
-        <Text
-          numberOfLines={this.state.messageNumberOfLines}
-          style={this.state.messageStyle}>
-          {this.state.message}
-        </Text>
-      )
+        <View style={{flexDirection:'row', alignItems:'center'}}>
+          <Icon allowFontScaling={false} name="mic" size={15} color='#000' style={{}} />
+          <Text numberOfLines={this.state.messageNumberOfLines} style={this.state.messageStyle}>
+            { this.state.message }
+          </Text>
+        </View>
+      );
+    }
+    if (this.state.imgMessage != null) {
+     return (
+          <Image style={this.state.messageStyle}  source={this.state.imgMessage} />
+        );
     }
   }
+
+  renderCloseButton() {
+    if (this.state.showCloseButton != null && this.state.showCloseButton) {
+      return (
+        <TouchableOpacity onPress={()=>{this._alertCloseTapped()}}>
+          <View style={{marginTop: this.state.closeButtonMarginTop, marginBottom: this.state.closeButtonMarginBottom, marginRight: this.state.closeButtonMarginRight, marginLeft: this.state.closeButtonMarginLeft, alignSelf: 'stretch'}}>
+            <Icon allowFontScaling={false} name="clear" size={this.state.closeButtonIconSize} color={this.state.closeButtonColor} />
+          </View>
+        </TouchableOpacity>
+      );
+    }
+  }
+
 }
 
-module.exports = MessageBar
+module.exports = MessageBar;
