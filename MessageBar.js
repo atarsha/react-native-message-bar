@@ -459,10 +459,11 @@ class MessageBar extends Component {
               {this.renderTitle()}
               {this.renderMessage()}
             </View>
-          </TouchableOpacity>
-          <View style={{ position: 'absolute', top: 0, right: 0, alignSelf: 'flex-start' }}>
-                { this.renderCloseButton() }
           </View>
+        </TouchableOpacity>
+        <View style={{ position: 'absolute', top: 0, right: 0, alignSelf: 'flex-start' }}>
+              { this.renderCloseButton() }
+        </View>
       </Animated.View>
     )
   }
